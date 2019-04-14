@@ -24,28 +24,6 @@ class DrawableObject(object):
     def background_draw(self):
         print "Background draw."
 
-class Trajectory(DrawableObject):
-    def __init__(self, points, canvas,
-                 world_extents, canvas_extents,
-                 standard_deviations = [],
-                 point_size2 = 2,
-                 background_color = "gray", cursor_color = "red",
-                 position_stddev_color = "green", theta_stddev_color = "#ffc0c0"):
-        self.points = points
-        self.standard_deviations = standard_deviations
-        self.canvas = canvas
-        self.world_extents = world_extents
-        self.canvas_extents = canvas_extents
-        self.point_size2 = point_size2
-        self.background_color = background_color
-        self.cursor_color = cursor_color
-        self.position_stddev_color = position_stddev_color
-        self.theta_stddev_color = theta_stddev_color
-        self.cursor_object = None
-        self.cursor_object2 = None
-        self.cursor_object3 = None
-        self.cursor_object4 = None
-
     @staticmethod
     def get_ellipse_points(center, main_axis_angle, radius1, radius2,
                            start_angle = 0.0, end_angle = 2 * pi):
@@ -67,6 +45,29 @@ class Trajectory(DrawableObject):
             y = - c*ay - s*by + center[1]
             points.append((x,y))
         return points
+
+
+class Trajectory(DrawableObject):
+    def __init__(self, points, canvas,
+                 world_extents, canvas_extents,
+                 standard_deviations = [],
+                 point_size2 = 2,
+                 background_color = "gray", cursor_color = "red",
+                 position_stddev_color = "green", theta_stddev_color = "#ffc0c0"):
+        self.points = points
+        self.standard_deviations = standard_deviations
+        self.canvas = canvas
+        self.world_extents = world_extents
+        self.canvas_extents = canvas_extents
+        self.point_size2 = point_size2
+        self.background_color = background_color
+        self.cursor_color = cursor_color
+        self.position_stddev_color = position_stddev_color
+        self.theta_stddev_color = theta_stddev_color
+        self.cursor_object = None
+        self.cursor_object2 = None
+        self.cursor_object3 = None
+        self.cursor_object4 = None
 
     def background_draw(self):
         if self.points:
@@ -193,11 +194,14 @@ class Landmarks(DrawableObject):
         pass
     
 class Points(DrawableObject):
-    def __init__(self, points, canvas, color = "red", radius = 5):
+    # Points, optionally with error ellipses.
+    def __init__(self, points, canvas, color = "red", radius = 5, ellipses = [], ellipse_factor = 1.0):
         self.points = points
         self.canvas = canvas
         self.color = color
         self.radius = radius
+        self.ellipses = ellipses
+        self.ellipse_factor = ellipse_factor
         self.cursor_objects = []
 
     def background_draw(self):
@@ -208,11 +212,20 @@ class Points(DrawableObject):
             map(self.canvas.delete, self.cursor_objects)
             self.cursor_objects = []
         if at_step < len(self.points):
-            for c in self.points[at_step]:
+            for i in xrange(len(self.points[at_step])):
+                # Draw point.
+                c = self.points[at_step][i]
                 self.cursor_objects.append(self.canvas.create_oval(
                     c[0]-self.radius, c[1]-self.radius,
                     c[0]+self.radius, c[1]+self.radius,
                     fill=self.color))
+                # Draw error ellipse if present.
+                if at_step < len(self.ellipses) and i < len(self.ellipses[at_step]):
+                    e = self.ellipses[at_step][i]
+                    points = self.get_ellipse_points(c, e[0], e[1] * self.ellipse_factor,
+                                                     e[2] * self.ellipse_factor)
+                    self.cursor_objects.append(self.canvas.create_line(
+                        *points, fill=self.color))
 
 # Particles are like points but add a direction vector.
 class Particles(DrawableObject):
@@ -308,6 +321,18 @@ def load_data():
                      for cylinders_one_scan in logfile.detected_cylinders ]
         draw_objects.append(Points(positions, sensor_canvas, "#88FF88"))
 
+    # Insert: world objects, cylinders and corresponding world objects, ellipses.
+    if logfile.world_cylinders:
+        positions = [[to_world_canvas(pos, canvas_extents, world_extents)
+                      for pos in cylinders_one_scan]
+                      for cylinders_one_scan in logfile.world_cylinders]
+        # Also setup cylinders if present.
+        # Note this assumes correct aspect ratio.
+        factor = canvas_extents[0] / world_extents[0]
+        draw_objects.append(Points(positions, world_canvas, "#DC23C5",
+                                   ellipses = logfile.world_ellipses,
+                                   ellipse_factor = factor))
+
     # Insert: detected cylinders, transformed into world coord system.
     if logfile.detected_cylinders and logfile.filtered_positions and \
         len(logfile.filtered_positions[0]) > 2:
@@ -324,13 +349,6 @@ def load_data():
                 this_pose_positions.append(p)
             positions.append(this_pose_positions)
         draw_objects.append(Points(positions, world_canvas, "#88FF88"))
-
-    # Insert: world objects, cylinders.
-    if logfile.world_cylinders:
-        positions = [[to_world_canvas(pos, canvas_extents, world_extents)
-                      for pos in cylinders_one_scan]
-                      for cylinders_one_scan in logfile.world_cylinders]
-        draw_objects.append(Points(positions, world_canvas, "#DC23C5"))
 
     # Insert: particles.
     if logfile.particles:

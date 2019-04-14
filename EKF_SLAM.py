@@ -218,7 +218,8 @@ if __name__ == '__main__':
     measurement_angle_stddev = 45. / 180.0 * pi  # Angle measurement error.
 
     # Arbitrary start position.
-    initial_state = array([500.0, 0.0, 45.0 / 180.0 * pi])
+    #initial_state = array([500.0, 0.0, 45.0 / 180.0 * pi])
+    initial_state = array([1850.0, 1897.0, 213.0 / 180.0 * pi])
 
     # Covariance at start position.
     initial_covariance = zeros((3,3))

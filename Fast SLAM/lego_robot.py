@@ -16,7 +16,8 @@ s_record_has_count = True
 # E (error) standard deviation in position, or position and heading angle
 # L landmark (reference landmark, fixed)
 # D detected landmark, in the scanner's coordinate system. C is cylinders
-# W something to draw in the world coordinate system. C is cylinders
+# W something to draw in the world coordinate system.
+#   C is cylinders, E is 2D error ellipses
 # PA list of particles (x, y, heading).
 #
 class LegoLogfile(object):
@@ -30,6 +31,7 @@ class LegoLogfile(object):
         self.landmarks = []
         self.detected_cylinders = []
         self.world_cylinders = []
+        self.world_ellipses = []
         self.particles = []
         self.last_ticks = None
 
@@ -49,6 +51,7 @@ class LegoLogfile(object):
         first_landmarks = True
         first_detected_cylinders = True
         first_world_cylinders = True
+        first_world_ellipses = True
         first_particles = True
         f = open(filename)
         for l in f:
@@ -162,6 +165,12 @@ class LegoLogfile(object):
             # Cylinder: W C x y x y ...
             #   Stored: List of lists of (x, y) tuples of the cylinder positions,
             #   one list per scan.
+            # Error ellipses: W E angle axis1 axis, angle axis1 axis2 ...
+            #   where angle is the ellipse's orientations and axis1 and axis2 are the lenghts
+            #   of the two half axes.
+            #   Stored: List of lists of (angle, axis1, axis2) tuples.
+            #   Note the ellipses can be used only in combination with "W C", which will
+            #   define the center point of the ellipse.
             elif sp[0] == 'W':
                 if sp[1] == 'C':
                     if first_world_cylinders:
@@ -169,6 +178,12 @@ class LegoLogfile(object):
                         first_world_cylinders = False
                     cyl = map(float, sp[2:])
                     self.world_cylinders.append([(cyl[2*i], cyl[2*i+1]) for i in range(len(cyl)/2)])
+                elif sp[1] == 'E':
+                    if first_world_ellipses:
+                        self.world_ellipses = []
+                        first_world_ellipses = False
+                    ell = map(float, sp[2:])
+                    self.world_ellipses.append([(ell[3*i], ell[3*i+1], ell[3*i+2]) for i in xrange(len(ell)/3)])
 
             # PA is particles.
             # File format:
@@ -202,6 +217,11 @@ class LegoLogfile(object):
     def beam_index_to_angle(i, mounting_angle = -0.06981317007977318):
         """Convert a beam index to an angle, in radians."""
         return (i - 330.0) * 0.006135923151543 + mounting_angle
+
+    @staticmethod
+    def min_max_bearing():
+        return (LegoLogfile.beam_index_to_angle(0),
+                LegoLogfile.beam_index_to_angle(660))
 
     @staticmethod
     def scanner_to_world(pose, point):
