@@ -1,4 +1,4 @@
-# FastSLAM.
+# FastSLAM
 from lego_robot import *
 from fast_slam_library import get_cylinders_from_scan, write_cylinders,\
      write_error_ellipses, get_mean, get_error_ellipse_and_heading_variance,\

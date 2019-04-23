@@ -1,4 +1,4 @@
-# EKF SLAM - prediction, landmark assignment and correction.
+# EKF SLAM
 from lego_robot import *
 from math import sin, cos, pi, atan2, sqrt
 from numpy import *

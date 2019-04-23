@@ -5,7 +5,7 @@ no_of_steps = 278
 
 measured_file = open("data/ekf_slam_output.txt",'r')
 actual_file = open("data/robot4_reference.txt",'r')
-error_file = open('data/EKF_SLAM_error.txt', 'w')
+error_file = open('EKF_SLAM_error.txt', 'w')
 
 measured_poses = []
 actual_poses = []
