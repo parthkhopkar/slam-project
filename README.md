@@ -18,5 +18,5 @@ $ python FastSLAM.py
 ```
 These generate the output files ekf_slam_output.txt and fast_slam_output.txt which can be viewed in the logfile viewer
 ```shell
-$ python logfileviewer.py
+$ python logfile_viewer.py
 ```
