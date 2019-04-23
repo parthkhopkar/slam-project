@@ -8,29 +8,28 @@ import numpy as np
 # Line header defines the start of each line, e.g. "D C" for a detected
 # cylinder or "W C" for a world cylinder.
 def write_cylinders(file_desc, line_header, cylinder_list):
-    print >> file_desc, line_header,
+    file_desc.write(line_header)
     for c in cylinder_list:
-        print >> file_desc, "%.1f %.1f" % tuple(c),
-    print >> file_desc
+        file_desc.write(" %.1f %.1f" % tuple(c))
+    file_desc.write('\n')
 
 # Utility to write a list of error ellipses to (one line of) a given file.
 # Line header defines the start of each line.
 # Note that in contrast to previous versions, this takes a list of covariance
 # matrices instead of list of ellipses.
 def write_error_ellipses(file_desc, line_header, covariance_matrix_list):
-    print >> file_desc, line_header,
+    file_desc.write(line_header)
     for m in covariance_matrix_list:
         eigenvals, eigenvects = np.linalg.eig(m)
         angle = atan2(eigenvects[1,0], eigenvects[0,0])
-        print >> file_desc, "%.3f %.1f %.1f" % \
-                 (angle, sqrt(eigenvals[0]), sqrt(eigenvals[1])),
-    print >> file_desc
+        file_desc.write(" %.3f %.1f %.1f" % (angle, sqrt(eigenvals[0]), sqrt(eigenvals[1]))),
+    file_desc.write('\n')
 
 
 # Find the derivative in scan data, ignoring invalid measurements.
 def compute_derivative(scan, min_dist):
     jumps = [ 0 ]
-    for i in xrange(1, len(scan) - 1):
+    for i in range(1, len(scan) - 1):
         l = scan[i-1]
         r = scan[i+1]
         if l > min_dist and r > min_dist:
@@ -48,7 +47,7 @@ def find_cylinders(scan, scan_derivative, jump, min_dist):
     on_cylinder = False
     sum_ray, sum_depth, rays = 0.0, 0.0, 0
 
-    for i in xrange(len(scan_derivative)):
+    for i in range(len(scan_derivative)):
         if scan_derivative[i] < -jump:
             # Start a new cylinder, independent of on_cylinder.
             on_cylinder = True
@@ -145,7 +144,7 @@ def print_particles(particles, file_desc):
     """Prints particles to given file_desc output."""
     if not particles:
         return
-    print >> file_desc, "PA",
+    file_desc.write("PA")
     for p in particles:
-        print >> file_desc, "%.0f %.0f %.3f" % tuple(p.pose),
-    print >> file_desc
+        file_desc.write(" %.0f %.0f %.3f" % tuple(p.pose))
+    file_desc.write('\n')

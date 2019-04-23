@@ -1,15 +1,6 @@
 # FastSLAM.
-# The fully functional SLAM is extended by a mechanism to exclude
-# spurious observations of landmarks.
-#
-# Search for the term 'Added' to find all locations in the program where
-# a modification is made to support the 'observation count' and removal
-# of spurious landmarks.
-#
-# slam_10_f_counter
-# Claus Brenner, 20.02.2013
 from lego_robot import *
-from slam_g_library import get_cylinders_from_scan, write_cylinders,\
+from fast_slam_library import get_cylinders_from_scan, write_cylinders,\
      write_error_ellipses, get_mean, get_error_ellipse_and_heading_variance,\
      print_particles
 from math import sin, cos, pi, atan2, sqrt, exp
@@ -131,7 +122,7 @@ class Particle:
         """For a given measurement, returns a list of all correspondence
            likelihoods (from index 0 to number_of_landmarks-1)."""
         likelihoods = []
-        for i in xrange(number_of_landmarks):
+        for i in range(number_of_landmarks):
             likelihoods.append(
                 self.wl_likelihood_of_correspondence(
                     measurement, i, Qt_measurement_covariance,
@@ -350,7 +341,7 @@ class FastSLAM:
         max_weight = max(weights)
         index = random.randint(0, len(self.particles) - 1)
         offset = 0.0
-        for i in xrange(len(self.particles)):
+        for i in range(len(self.particles)):
             offset += random.uniform(0, 2.0 * max_weight)
             while offset > weights[index]:
                 offset -= weights[index]
@@ -385,10 +376,10 @@ if __name__ == '__main__':
     minimum_correspondence_likelihood = 0.001  # Min likelihood of correspondence.
 
     # Generate initial particles. Each particle is (x, y, theta).
-    number_of_particles = 25
+    number_of_particles = 200
     start_state = np.array([1850.0, 1897.0, 213.0 / 180.0 * pi])
     initial_particles = [copy.copy(Particle(start_state))
-                         for _ in xrange(number_of_particles)]
+                         for _ in range(number_of_particles)]
 
     # Setup filter.
     fs = FastSLAM(initial_particles,
@@ -400,13 +391,13 @@ if __name__ == '__main__':
 
     # Read data.
     logfile = LegoLogfile()
-    logfile.read("robot4_motors.txt")
-    logfile.read("robot4_scan.txt")
+    logfile.read("data/robot4_motors.txt")
+    logfile.read("data/robot4_scan.txt")
 
     # Loop over all motor tick records.
     # This is the FastSLAM filter loop, with prediction and correction.
-    f = open("fast_slam_counter.txt", "w")
-    for i in xrange(len(logfile.motor_ticks)):
+    f = open("data/fast_slam_output.txt", "w")
+    for i in range(len(logfile.motor_ticks)):
         # Prediction.
         control = map(lambda x: x * ticks_to_mm, logfile.motor_ticks[i])
         fs.predict(control)
@@ -421,24 +412,22 @@ if __name__ == '__main__':
 
         # Output state estimated from all particles.
         mean = get_mean(fs.particles)
-        print >> f, "F %.0f %.0f %.3f" %\
+        f.write("F %.0f %.0f %.3f\n" %\
               (mean[0] + scanner_displacement * cos(mean[2]),
                mean[1] + scanner_displacement * sin(mean[2]),
-               mean[2])
+               mean[2]))
 
         # Output error ellipse and standard deviation of heading.
         errors = get_error_ellipse_and_heading_variance(fs.particles, mean)
-        print >> f, "E %.3f %.0f %.0f %.3f" % errors
+        f.write("E %.3f %.0f %.0f %.3f\n" % errors)
 
         # Output landmarks of particle which is closest to the mean position.
         output_particle = min([
             (np.linalg.norm(mean[0:2] - fs.particles[i].pose[0:2]),i)
-            for i in xrange(len(fs.particles)) ])[1]
+            for i in range(len(fs.particles)) ])[1]
         # Write estimates of landmarks.
-        write_cylinders(f, "W C",
-                        fs.particles[output_particle].landmark_positions)
+        write_cylinders(f, "W C", fs.particles[output_particle].landmark_positions)
         # Write covariance matrices.
-        write_error_ellipses(f, "W E",
-                             fs.particles[output_particle].landmark_covariances)
+        write_error_ellipses(f, "W E", fs.particles[output_particle].landmark_covariances)
 
     f.close()
