@@ -1,7 +1,7 @@
 # SLAM Project
 Project on Simultaneous Localization and Mapping (SLAM) which implements Extended Kalman Filter (EKF) SLAM and FastSLAM (Particle based). This is based on the [SLAM course by Claus Brenner](https://www.youtube.com/playlist?list=PLpUPoM7Rgzi_7YWn14Va2FODh7LzADBSm)
 
-# Requirements
+## Requirements
 1. Python 3
 2. Tkinter
 3. Numpy
