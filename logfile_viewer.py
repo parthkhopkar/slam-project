@@ -22,7 +22,6 @@ sensor_canvas_extents = canvas_extents
 # in millimeters.
 max_scanner_range = 2200.0
 
-
 class DrawableObject(object):
     def draw(self, at_step):
         print
@@ -256,7 +255,8 @@ class Particles(DrawableObject):
 
     def draw(self, at_step):
         if self.cursor_objects:
-            map(self.canvas.delete, self.cursor_objects)
+            #map(self.canvas.delete, self.cursor_objects)
+            for obj in self.cursor_objects: self.canvas.delete(obj)
             self.cursor_objects = []
         if at_step < len(self.particles):
             for c in self.particles[at_step]:

@@ -1,4 +1,4 @@
-# EKF SLAM - prediction, landmark assignment and correction.
+# EKF SLAM
 from lego_robot import *
 from math import sin, cos, pi, atan2, sqrt
 from numpy import *
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     minimum_valid_distance = 20.0
     depth_jump = 100.0
     cylinder_offset = 90.0
-    max_cylinder_distance = 500.0
+    max_cylinder_distance = 400.0
 
     # Filter constants.
     control_motion_factor = 0.35  # Error in motor control.
@@ -218,10 +218,12 @@ if __name__ == '__main__':
     measurement_angle_stddev = 45. / 180.0 * pi  # Angle measurement error.
 
     # Arbitrary start position.
-    initial_state = array([500.0, 0.0, 45.0 / 180.0 * pi])
+    # initial_state = array([0.0, 0.0, 30.0 / 180.0 * pi])
+    initial_state = array([1850.0, 1897.0, 213.0 / 180.0 * pi])
 
     # Covariance at start position.
     initial_covariance = zeros((3,3))
+    # initial_covariance = diag([100.0**2, 100.0*2, (10.0 / 180.0 * pi)**2])
 
     # Setup filter.
     kf = ExtendedKalmanFilterSLAM(initial_state, initial_covariance,
