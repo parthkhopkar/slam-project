@@ -209,7 +209,7 @@ if __name__ == '__main__':
     minimum_valid_distance = 20.0
     depth_jump = 100.0
     cylinder_offset = 90.0
-    max_cylinder_distance = 400.0
+    max_cylinder_distance = 500.0
 
     # Filter constants.
     control_motion_factor = 0.35  # Error in motor control.
