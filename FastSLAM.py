@@ -75,7 +75,6 @@ class Particle:
                                             scanner_displacement):
         """Returns the expected distance and bearing measurement for a given
            landmark number and the pose of this particle."""
-        # --->>> Insert your previous code here.
         return self.h(self.pose,self.landmark_positions[landmark_number], scanner_displacement)
 
     def H_Ql_jacobian_and_measurement_covariance_for_landmark(
@@ -96,9 +95,8 @@ class Particle:
                                         scanner_displacement):
         """For a given measurement and landmark_number, returns the likelihood
            that the measurement corresponds to the landmark."""
-        # --->>> Insert your code here.
-        # Hints:
-        # - You will need delta_z, which is the measurement minus the
+
+        # - Need delta_z, which is the measurement minus the
         #   expected_measurement_for_landmark()
         delta_z = measurement - self.h_expected_measurement_for_landmark( landmark_number, scanner_displacement )
 
@@ -137,8 +135,6 @@ class Particle:
         scanner_pose = (self.pose[0] + cos(self.pose[2]) * scanner_displacement,
                         self.pose[1] + sin(self.pose[2]) * scanner_displacement,
                         self.pose[2])
-        # --->>> Insert your code here.
-        # Hints:
         # - LegoLogfile.scanner_to_world() (from lego_robot.py) will return
         #   the world coordinate, given the scanner pose and the coordinate in
         #   the scanner's system.
@@ -148,18 +144,16 @@ class Particle:
         # - Use np.linalg.inv(A) to invert matrix A
         H_inv = np.linalg.inv(H)
         Qt = Qt_measurement_covariance
-        # - As usual, np.dot(A,B) is the matrix product of A and B.
-        # self.landmark_positions.append(np.array([0.0, 0.0]))  # Replace this.
-        # self.landmark_covariances.append(np.eye(2))  # Replace this.
+        # np.dot(A,B) is the matrix product of A and B.
+        # self.landmark_positions.append(np.array([0.0, 0.0]))
+        # self.landmark_covariances.append(np.eye(2))
         self.landmark_positions.append(m)
         self.landmark_covariances.append(np.dot(np.dot(H_inv,Qt),H_inv.T))
 
     def update_landmark(self, landmark_number, measurement,
                         Qt_measurement_covariance, scanner_displacement):
         """Update a landmark's estimated position and covariance."""
-        # --->>> Insert your new code here.
-        # Hints:
-        # - H and Ql can be computed using
+        # - H and Ql are computed using
         #   H_Ql_jacobian_and_measurement_covariance_for_landmark()
         H, Ql = self.H_Ql_jacobian_and_measurement_covariance_for_landmark( landmark_number,Qt_measurement_covariance,scanner_displacement )
         
@@ -190,8 +184,6 @@ class Particle:
            likelihoods are below the minimum_correspondence_likelihood
            threshold, add a landmark to the particle. Otherwise, update the
            (existing) landmark with the largest likelihood."""
-        # --->>> Insert your previous code here.
-        # --->>> Then, modify as follows:
         # If a new landmark is initialized, append 1 to landmark_counters.
         # If an existing landmark is updated, add 2 to the corresponding
         #  landmark counter.
@@ -229,8 +221,6 @@ class Particle:
            visible. This uses a simplified test: it is only checked if the
            bearing of the expected measurement is within the laser scanners
            range."""
-        # --->>> Insert your new code here.
-        # Hints:
         # - We only check the bearing angle of the landmarks.
         # - Min and max bearing can be obtained from
         #   LegoLogfile.min_max_bearing()
@@ -249,7 +239,6 @@ class Particle:
     # Added: Removal of landmarks with negative counter.
     def remove_spurious_landmarks(self):
         """Remove all landmarks which have a counter less than zero."""
-        # --->>> Insert your new code here.
         # Remove any landmark for which the landmark_counters[] is (strictly)
         # smaller than zero.
         # Note: deleting elements of a list while iterating over the list
