@@ -1,5 +1,5 @@
 # SLAM Project
-Project on Simultaneous Localization and Mapping (SLAM) which implements Extended Kalman Filter (EKF) SLAM and FastSLAM (Particle based). This is based on the [SLAM course by Claus Brenner](https://www.youtube.com/playlist?list=PLpUPoM7Rgzi_7YWn14Va2FODh7LzADBSm) which uses a LEGO robot in a 2000mm X 2000mm arena with 6 landmarks which serve as map features. The robot is eqipped with a LIDAR sensor to generate scan data.
+Project on Simultaneous Localization and Mapping (SLAM) which implements Extended Kalman Filter (EKF) SLAM and FastSLAM (Particle based). This is based on the [SLAM course by Claus Brenner](https://www.youtube.com/playlist?list=PLpUPoM7Rgzi_7YWn14Va2FODh7LzADBSm) which uses a LEGO robot in a 2000mm X 2000mm arena with 6 landmarks which serve as map features. The robot is equipped with a LIDAR sensor to generate scan data.
 
 ## Requirements
 1. Python 3
